@@ -5,14 +5,14 @@ namespace Robots
     internal class Solver
     {
         private Location _robotLocation;
-        private readonly Action<Location> _robotMoved;
+        private readonly Action<Location> _publishRobotHasMoved;
         private readonly World _world;
         private readonly Robot _robot;
 
-        public Solver(int width, int height, Location treasureLocation, Location robotLocation, Action<Location> robotMoved)
+        public Solver(int width, int height, Location treasureLocation, Location robotLocation, Action<Location> publishRobotHasMoved)
         {
             _robotLocation = robotLocation;
-            _robotMoved = robotMoved;
+            _publishRobotHasMoved = publishRobotHasMoved;
             _world = new World(width, height, treasureLocation);
             _robot = new Robot(_world, _robotLocation);
         }
@@ -34,7 +34,7 @@ namespace Robots
             if (newDirection == null) return false;
 
             _robotLocation = robot.Move(newDirection.Value);
-            _robotMoved(_robotLocation);
+            _publishRobotHasMoved(_robotLocation);
 
             return FollowStrategy(world, robot, strategy);
         }
