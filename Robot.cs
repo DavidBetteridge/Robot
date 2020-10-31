@@ -13,36 +13,12 @@
 
         public Content Look(Direction direction)
         {
-            return direction switch
-            {
-                Direction.Left => _world.CellContent(_currentLocation.Left),
-                Direction.Right => _world.CellContent(_currentLocation.Right),
-                Direction.Up => _world.CellContent(_currentLocation.Up),
-                Direction.Down => _world.CellContent(_currentLocation.Down),
-                _ => Content.Empty
-            };
+            return _world.CellContent(_currentLocation.OffsetByDirection(direction));
         }
 
         public Location Move(Direction direction)
         {
-            switch (direction)
-            {
-                case Direction.Left:
-                    _currentLocation = _currentLocation.Left;
-                    break;
-                case Direction.Right:
-                    _currentLocation = _currentLocation.Right;
-                    break;
-                case Direction.Up:
-                    _currentLocation = _currentLocation.Up;
-                    break;
-                case Direction.Down:
-                    _currentLocation = _currentLocation.Down;
-                    break;
-                default:
-                    break;
-            }
-
+            _currentLocation = _currentLocation.OffsetByDirection(direction);
             return _currentLocation;
         }
     }

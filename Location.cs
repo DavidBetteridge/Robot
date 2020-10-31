@@ -15,6 +15,17 @@
         public Location Right => new Location(X + 1, Y);
         public Location Up => new Location(X, Y - 1);
         public Location Down => new Location(X, Y + 1);
+
+        public Location OffsetByDirection(Direction direction)
+        {
+            return direction switch
+            {
+                Direction.Left => Left,
+                Direction.Right => Right,
+                Direction.Up => Up,
+                _ => Down,
+            };
+        }
     }
 
 }
