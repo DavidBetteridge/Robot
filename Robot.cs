@@ -39,6 +39,16 @@
         {
             _currentLocation = _currentLocation.Down;
         }
+
+        public Direction? DirectionOfTreasure()
+        {
+            if (LookInDirection(Direction.Up) == Content.Treasure) return Direction.Up;
+            if (LookInDirection(Direction.Down) == Content.Treasure) return Direction.Down;
+            if (LookInDirection(Direction.Left) == Content.Treasure) return Direction.Left;
+            if (LookInDirection(Direction.Right) == Content.Treasure) return Direction.Right;
+
+            return null;
+        }
     }
 
 }

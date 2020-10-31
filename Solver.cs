@@ -6,74 +6,52 @@ namespace Robots
     internal class Solver
     {
         private Location _robotLocation;
+        private readonly World _world;
+        private readonly Robot _robot;
 
-        public void Solve()
+        public Solver()
         {
             var m = 15;
             var n = 10;
             var treasureLocation = new Location(6, 5);
             _robotLocation = new Location(2, 3);
-            var world = new World(m, n, treasureLocation);
-            var robot = new Robot(world, _robotLocation);
+            _world = new World(m, n, treasureLocation);
+            _robot = new Robot(_world, _robotLocation);
 
             DisplayWorldAndRobot(m, n, treasureLocation, _robotLocation);
+        }
 
-            var foundTreasure = MoveToTopLeft(robot);
+        public void Solve()
+        {
+            var foundTreasure = FollowStrategy(_world, _robot, new MoveToTopLeftStrategy());
             if (!foundTreasure)
             {
-                foundTreasure = MoveToBottomRight(robot);
+                foundTreasure = FollowStrategy(_world, _robot, new MoveToBottomRightStrategy());
             }
         }
-        private bool MoveToBottomRight(Robot robot)
+        private bool MoveToBottomRight(World world, Robot robot)
         {
-            var xDirection = Direction.Right;
-            while (true)
+            var strategy = new MoveToBottomRightStrategy();
+            while (world.CellContent(_robotLocation) != Content.Treasure)
             {
-                var direction = DirectionOfTreasure(robot);
-                if (direction is object)
-                {
-                    MoveRobot(robot, direction.Value);
-                    return true;
-                }
-                else if (robot.LookInDirection(xDirection) == Content.Empty)
-                {
-                    MoveRobot(robot, xDirection);
-                }
-                else if (robot.LookInDirection(Direction.Down) == Content.Empty)
-                {
-                    MoveRobot(robot, Direction.Down);
-                    xDirection = xDirection == Direction.Left ? Direction.Right : Direction.Left;
-                }
-                else
-                {
-                    return false;
-                }
+                var newDirection = strategy.SuggestDirection(robot);
+                if (newDirection == null) return false;
+                MoveRobot(robot, newDirection.Value);
             }
+
+            return true;
         }
 
-        private bool MoveToTopLeft(Robot robot)
+        private bool FollowStrategy(World world, Robot robot, IStrategy strategy)
         {
-            while (true)
+            while (world.CellContent(_robotLocation) != Content.Treasure)
             {
-                var direction = DirectionOfTreasure(robot);
-                if (direction is object)
-                {
-                    MoveRobot(robot, direction.Value);
-                    return true;
-                }
-                else if (robot.LookInDirection(Direction.Left) == Content.Empty)
-                {
-                    MoveRobot(robot, Direction.Left);
-                }
-                else if (robot.LookInDirection(Direction.Up) == Content.Empty)
-                {
-                    MoveRobot(robot, Direction.Up);
-                }
-                else
-                {
-                    return false;
-                }
+                var newDirection = strategy.SuggestDirection(robot);
+                if (newDirection == null) return false;
+                MoveRobot(robot, newDirection.Value);
             }
+
+            return true;
         }
 
         private void MoveRobot(Robot robot, Direction direction)
@@ -110,15 +88,7 @@ namespace Robots
             Thread.Sleep(TimeSpan.FromSeconds(.25));
         }
 
-        private static Direction? DirectionOfTreasure(Robot robot)
-        {
-            if (robot.LookInDirection(Direction.Up) == Content.Treasure) return Direction.Up;
-            if (robot.LookInDirection(Direction.Down) == Content.Treasure) return Direction.Down;
-            if (robot.LookInDirection(Direction.Left) == Content.Treasure) return Direction.Left;
-            if (robot.LookInDirection(Direction.Right) == Content.Treasure) return Direction.Right;
 
-            return null;
-        }
 
         private static void DisplayWorldAndRobot(int width, int height, Location treasureLocation, Location robotLocation)
         {
