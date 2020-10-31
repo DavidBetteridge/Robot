@@ -29,29 +29,17 @@ namespace Robots
                 foundTreasure = FollowStrategy(_world, _robot, new MoveToBottomRightStrategy());
             }
         }
-        private bool MoveToBottomRight(World world, Robot robot)
-        {
-            var strategy = new MoveToBottomRightStrategy();
-            while (world.CellContent(_robotLocation) != Content.Treasure)
-            {
-                var newDirection = strategy.SuggestDirection(robot);
-                if (newDirection == null) return false;
-                MoveRobot(robot, newDirection.Value);
-            }
-
-            return true;
-        }
 
         private bool FollowStrategy(World world, Robot robot, IStrategy strategy)
         {
-            while (world.CellContent(_robotLocation) != Content.Treasure)
-            {
-                var newDirection = strategy.SuggestDirection(robot);
-                if (newDirection == null) return false;
-                MoveRobot(robot, newDirection.Value);
-            }
+            if (world.CellContent(_robotLocation) == Content.Treasure) return true;
 
-            return true;
+            var newDirection = strategy.SuggestDirection(robot);
+            if (newDirection == null) return false;
+
+            MoveRobot(robot, newDirection.Value);
+
+            return FollowStrategy(world, robot, strategy);
         }
 
         private void MoveRobot(Robot robot, Direction direction)
