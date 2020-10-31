@@ -23,21 +23,27 @@
             };
         }
 
-        public void MoveLeft()
+        public Location Move(Direction direction)
         {
-            _currentLocation = _currentLocation.Left;
-        }
-        public void MoveRight()
-        {
-            _currentLocation = _currentLocation.Right;
-        }
-        public void MoveUp()
-        {
-            _currentLocation = _currentLocation.Up;
-        }
-        public void MoveDown()
-        {
-            _currentLocation = _currentLocation.Down;
+            switch (direction)
+            {
+                case Direction.Left:
+                    _currentLocation = _currentLocation.Left;
+                    break;
+                case Direction.Right:
+                    _currentLocation = _currentLocation.Right;
+                    break;
+                case Direction.Up:
+                    _currentLocation = _currentLocation.Up;
+                    break;
+                case Direction.Down:
+                    _currentLocation = _currentLocation.Down;
+                    break;
+                default:
+                    break;
+            }
+
+            return _currentLocation;
         }
 
         public Direction? DirectionOfTreasure()

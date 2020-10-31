@@ -33,35 +33,10 @@ namespace Robots
             var newDirection = strategy.SuggestDirection(robot);
             if (newDirection == null) return false;
 
-            MoveRobot(robot, newDirection.Value);
+            _robotLocation = robot.Move(newDirection.Value);
+            _robotMoved(_robotLocation);
 
             return FollowStrategy(world, robot, strategy);
-        }
-
-        private void MoveRobot(Robot robot, Direction direction)
-        {
-            switch (direction)
-            {
-                case Direction.Left:
-                    _robotLocation = _robotLocation.Left;
-                    robot.MoveLeft();
-                    break;
-                case Direction.Right:
-                    _robotLocation = _robotLocation.Right;
-                    robot.MoveRight();
-                    break;
-                case Direction.Up:
-                    _robotLocation = _robotLocation.Up;
-                    robot.MoveUp();
-                    break;
-                case Direction.Down:
-                    _robotLocation = _robotLocation.Down;
-                    robot.MoveDown();
-                    break;
-                default:
-                    break;
-            }
-            _robotMoved(_robotLocation);
         }
     }
 }

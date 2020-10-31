@@ -4,5 +4,4 @@
     {
         public Direction? SuggestDirection(Robot robot);
     }
-
 }
