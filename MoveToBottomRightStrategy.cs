@@ -10,19 +10,24 @@
             {
                 return direction.Value;
             }
-            else if (robot.LookInDirection(xDirection) == Content.Empty)
+            else if (robot.Look(xDirection) == Content.Empty)
             {
                 return xDirection;
             }
-            else if (robot.LookInDirection(Direction.Down) == Content.Empty)
+            else if (robot.Look(Direction.Down) == Content.Empty)
             {
-                xDirection = xDirection == Direction.Left ? Direction.Right : Direction.Left;
+                ToggleLeftRight();
                 return Direction.Down;
             }
             else
             {
                 return null;
             }
+        }
+
+        private void ToggleLeftRight()
+        {
+            xDirection = xDirection == Direction.Left ? Direction.Right : Direction.Left;
         }
     }
 

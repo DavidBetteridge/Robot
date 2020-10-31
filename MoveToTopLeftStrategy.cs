@@ -9,11 +9,11 @@
             {
                 return direction.Value;
             }
-            else if (robot.LookInDirection(Direction.Left) == Content.Empty)
+            else if (robot.Look(Direction.Left) == Content.Empty)
             {
                 return Direction.Left;
             }
-            else if (robot.LookInDirection(Direction.Up) == Content.Empty)
+            else if (robot.Look(Direction.Up) == Content.Empty)
             {
                 return Direction.Up;
             }

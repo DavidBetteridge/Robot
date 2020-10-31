@@ -11,7 +11,7 @@
             _currentLocation = currentLocation;
         }
 
-        public Content LookInDirection(Direction direction)
+        public Content Look(Direction direction)
         {
             return direction switch
             {
@@ -45,16 +45,5 @@
 
             return _currentLocation;
         }
-
-        public Direction? DirectionOfTreasure()
-        {
-            if (LookInDirection(Direction.Up) == Content.Treasure) return Direction.Up;
-            if (LookInDirection(Direction.Down) == Content.Treasure) return Direction.Down;
-            if (LookInDirection(Direction.Left) == Content.Treasure) return Direction.Left;
-            if (LookInDirection(Direction.Right) == Content.Treasure) return Direction.Right;
-
-            return null;
-        }
     }
-
 }
