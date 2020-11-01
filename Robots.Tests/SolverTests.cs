@@ -6,8 +6,8 @@ namespace Robot.Tests
 {
     public class SolverTests
     {
-        [Fact(DisplayName = "The robot can only move one cell at a time")]
-        public void RobotCanOnlyMoveOneSquareAtATime()
+        [Fact(DisplayName = "The robot can only move one cell at a time and the robot ends up on the cell containing the treasure")]
+        public void KnownValues()
         {
             const int width = 15;
             const int height = 10;
@@ -25,10 +25,13 @@ namespace Robot.Tests
             });
 
             solver.Solve();
+
+            Assert.Equal(treasureLocation.X, previousLocation.X);
+            Assert.Equal(treasureLocation.Y, previousLocation.Y);
         }
 
-        [Fact(DisplayName = "The robot ends up on the cell containing the treasure")]
-        public void TheRobotGetsTheTreasure()
+        [Fact(DisplayName = "The robot and treasure are placed at random")]
+        public void RandomValues()
         {
             const int width = 15;
             const int height = 10;
@@ -38,7 +41,13 @@ namespace Robot.Tests
             var robotLocation = new Location(random.Next(0, width), random.Next(0, height));
 
             var previousLocation = robotLocation;
-            var solver = new Solver(width, height, treasureLocation, robotLocation, newLocation => { previousLocation = newLocation; });
+            var solver = new Solver(width, height, treasureLocation, robotLocation, newLocation =>
+            {
+                var xDiff = Math.Abs(newLocation.X - previousLocation.X);
+                var yDiff = Math.Abs(newLocation.Y - previousLocation.Y);
+                Assert.True((xDiff + yDiff) <= 1);
+                previousLocation = newLocation;
+            });
             solver.Solve();
 
             Assert.Equal(treasureLocation.X, previousLocation.X);
