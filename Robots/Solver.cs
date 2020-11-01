@@ -22,6 +22,9 @@ namespace Robots
             var foundTreasure = FollowStrategy(_world, _robot, new MoveToTopLeftStrategy());
             if (!foundTreasure)
             {
+                _robotLocation = _robot.Move(Direction.Down);
+                _publishRobotHasMoved(_robotLocation);
+
                 foundTreasure = FollowStrategy(_world, _robot, new MoveToBottomRightStrategy());
             }
         }

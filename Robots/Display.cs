@@ -12,6 +12,11 @@ namespace Robots
             _currentLocation = robotLocation;
 
             Console.Clear();
+            Draw(width, height, treasureLocation, robotLocation);
+        }
+
+        private static void Draw(int width, int height, Location treasureLocation, Location robotLocation)
+        {
             Console.WriteLine(new String('-', width + 2));
             for (int r = 0; r < height; r++)
             {
@@ -29,7 +34,7 @@ namespace Robots
         public void RobotMoved(Location newLocation)
         {
             Console.SetCursorPosition(_currentLocation.X + 1, _currentLocation.Y + 1);
-            Console.Write(" ");
+            Console.Write(".");
 
             Console.SetCursorPosition(newLocation.X + 1, newLocation.Y + 1);
             Console.Write("R");
