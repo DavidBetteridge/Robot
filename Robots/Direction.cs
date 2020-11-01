@@ -1,6 +1,6 @@
 ﻿namespace Robots
 {
-    enum Direction
+    public enum Direction
     {
         Left,
         Right,

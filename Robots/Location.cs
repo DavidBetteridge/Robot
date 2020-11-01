@@ -1,6 +1,6 @@
 ﻿namespace Robots
 {
-    struct Location
+    public struct Location
     {
         public Location(int x, int y)
         {

@@ -2,7 +2,7 @@
 
 namespace Robots
 {
-    internal class Solver
+    public class Solver
     {
         private Location _robotLocation;
         private readonly Action<Location> _publishRobotHasMoved;
