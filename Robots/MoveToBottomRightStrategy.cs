@@ -19,75 +19,89 @@
 
         public Direction? SuggestDirection(Robot robot)
         {
-            switch (_currentState)
+            return _currentState switch
             {
-                case State.FindingRightEdge:
-                    if (AtRightEdge(robot))
-                    {
-                        RecordLocationOfRightEdge();
-                        ChangeToHeadingDownThenLeft(numberToGoDown: 3);
-                        return MoveLeft();
-                    }
-                    else
-                    {
-                        return MoveRight();
-                    }
+                State.FindingRightEdge => FromStateFindingRightEdge(robot),
+                State.HeadingRight => FromStateHeadingRight(robot),
+                State.HeadingDownThenLeft => FromStateHeadingDownTheLeft(robot),
+                State.HeadingLeft => FromStateHeadingLeft(robot),
+                State.HeadingDownThenRight => FromStateHeadingDownThenRight(robot),
+                _ => null,
+            };
+        }
 
-                case State.HeadingRight:
-                    if (CanHeadRight())
-                    {
-                        return MoveRight();
-                    }
-                    else
-                    {
-                        ChangeToHeadingDownThenLeft(numberToGoDown: 2);
-                        return MoveDownIfPossible(robot);
-                    }
-
-                case State.HeadingDownThenLeft:
-                    if (ShouldContinueHeadingDown(robot))
-                    {
-                        return MoveDown();
-                    }
-                    else
-                    {
-                        ChangeToHeadingLeft();
-                        return MoveLeft();
-                    }
-
-                case State.HeadingLeft:
-                    if (CanHeadLeft())
-                    {
-                        return MoveLeft();
-                    }
-                    else
-                    {
-                        ChangeToHeadingDownThenRight(2);
-                        return MoveDownIfPossible(robot);
-                    }
-
-                case State.HeadingDownThenRight:
-                    if (ShouldContinueHeadingDown(robot))
-                    {
-                        return MoveDown();
-                    }
-                    else
-                    {
-                        ChangeToHeadingRight();
-                        return MoveRight();
-                    }
-
-                default:
-                    return null;
+        private Direction? FromStateHeadingDownThenRight(Robot robot)
+        {
+            if (ShouldContinueHeadingDown(robot))
+            {
+                return MoveDown();
+            }
+            else
+            {
+                ChangeStateToHeadingRight();
+                return MoveRight();
             }
         }
 
-        private void ChangeToHeadingRight()
+        private Direction? FromStateHeadingLeft(Robot robot)
+        {
+            if (CanHeadLeft())
+            {
+                return MoveLeft();
+            }
+            else
+            {
+                ChangeStateToHeadingDownThenRight(2);
+                return MoveDownIfPossible(robot);
+            }
+        }
+
+        private Direction? FromStateHeadingDownTheLeft(Robot robot)
+        {
+            if (ShouldContinueHeadingDown(robot))
+            {
+                return MoveDown();
+            }
+            else
+            {
+                ChangeStateToHeadingLeft();
+                return MoveLeft();
+            }
+        }
+
+        private Direction? FromStateHeadingRight(Robot robot)
+        {
+            if (CanHeadRight())
+            {
+                return MoveRight();
+            }
+            else
+            {
+                ChangeStateToHeadingDownThenLeft(numberToGoDown: 2);
+                return MoveDownIfPossible(robot);
+            }
+        }
+
+        private Direction FromStateFindingRightEdge(Robot robot)
+        {
+            if (AtRightEdge(robot))
+            {
+                RecordLocationOfRightEdge();
+                ChangeStateToHeadingDownThenLeft(numberToGoDown: 3);
+                return MoveLeft();
+            }
+            else
+            {
+                return MoveRight();
+            }
+        }
+
+        private void ChangeStateToHeadingRight()
         {
             _currentState = State.HeadingRight;
         }
 
-        private void ChangeToHeadingLeft()
+        private void ChangeStateToHeadingLeft()
         {
             _currentState = State.HeadingLeft;
         }
@@ -97,13 +111,13 @@
             maxXOffset = xOffset - 1;
         }
 
-        private void ChangeToHeadingDownThenLeft(int numberToGoDown)
+        private void ChangeStateToHeadingDownThenLeft(int numberToGoDown)
         {
             yOffset = numberToGoDown;
             _currentState = State.HeadingDownThenLeft;
         }
 
-        private void ChangeToHeadingDownThenRight(int numberToGoDown)
+        private void ChangeStateToHeadingDownThenRight(int numberToGoDown)
         {
             yOffset = numberToGoDown;
             _currentState = State.HeadingDownThenRight;
@@ -156,5 +170,4 @@
             return Direction.Down;
         }
     }
-
 }
