@@ -19,31 +19,61 @@ namespace Robots
 
         public void Solve()
         {
-            var foundTreasure = FollowStrategy(_world, _robot, new MoveToTopLeftStrategy());
-            if (!foundTreasure)
-            {
-                _robotLocation = _robot.Move(Direction.Down);
-                _publishRobotHasMoved(_robotLocation);
+            var sharedState = new SharedState();
 
-                foundTreasure = FollowStrategy(_world, _robot, new MoveToBottomRightStrategy());
+            Do(sharedState,
+                   new FindLeftWall(),
+                   new WalkRight(1),
+                   new FindTopWall(),
+                   new WalkDown(1),
+                   new FindRightWall(),
+                   new WalkLeft(1)
+            );
+
+            Repeat(sharedState,
+                   () => new WalkDown(3),
+                   () => new WalkLeft(sharedState.Width - 3),
+                   () => new WalkDown(3),
+                   () => new WalkRight(sharedState.Width - 3)
+                );
+        }
+
+        private void Do(SharedState sharedState, params IStrategy[] strategies)
+        {
+            foreach (var strategy in strategies)
+            {
+                if (FollowStrategy(sharedState, strategy))
+                    return;
             }
         }
 
-        private bool FollowStrategy(World world, Robot robot, IStrategy strategy)
+        private void Repeat(SharedState sharedState, params Func<IStrategy>[] strategyCreators)
         {
-            if (world.CellContent(_robotLocation) == Content.Treasure) return true;
+            while (true)
+            {
+                foreach (var creator in strategyCreators)
+                {
+                    if (FollowStrategy(sharedState, creator()))
+                        return;
+                }
+            }
+        }
 
-            var direction = robot.DirectionOfTreasure();
+        private bool FollowStrategy(SharedState sharedState, IStrategy strategy)
+        {
+            if (_world.CellContent(_robotLocation) == Content.Treasure) return true;
+
+            var direction = _robot.DirectionOfTreasure();
             if (direction is null)
             {
-                direction = strategy.SuggestDirection(robot);
+                direction = strategy.SuggestDirection(sharedState, _robot);
                 if (direction == null) return false;
             }
 
-            _robotLocation = robot.Move(direction.Value);
+            _robotLocation = _robot.Move(direction.Value);
             _publishRobotHasMoved(_robotLocation);
 
-            return FollowStrategy(world, robot, strategy);
+            return FollowStrategy(sharedState, strategy);
         }
     }
 }

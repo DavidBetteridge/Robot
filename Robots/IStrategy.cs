@@ -2,6 +2,6 @@
 {
     interface IStrategy
     {
-        public Direction? SuggestDirection(Robot robot);
+        public Direction? SuggestDirection(SharedState sharedState, Robot robot);
     }
 }

@@ -9,7 +9,7 @@ namespace Robots
             const int width = 15;
             const int height = 15;
 
-            var treasureLocation = new Location(6, 11);
+            var treasureLocation = new Location(6, 14);
             var robotLocation = new Location(2, 3);
 
             var display = new Display();
