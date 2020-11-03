@@ -6,15 +6,16 @@ namespace Robots
     {
         static void Main(string[] args)
         {
-            var m = 15;
-            var n = 10;
-            var treasureLocation = new Location(6, 9);
+            const int width = 15;
+            const int height = 15;
+
+            var treasureLocation = new Location(6, 11);
             var robotLocation = new Location(2, 3);
 
             var display = new Display();
-            var solver = new Solver(m, n, treasureLocation, robotLocation, display.RobotMoved);
+            var solver = new Solver(width, height, treasureLocation, robotLocation, display.RobotMoved);
 
-            display.DisplayWorldAndRobot(m, n, treasureLocation, robotLocation);
+            display.DisplayWorldAndRobot(width, height, treasureLocation, robotLocation);
             Console.ReadKey(true);
             solver.Solve();
         }

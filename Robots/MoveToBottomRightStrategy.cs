@@ -16,79 +16,70 @@
         private int xOffset = 0;
         private int yOffset = 0;
         private int maxXOffset = int.MaxValue;
+
         public Direction? SuggestDirection(Robot robot)
         {
-            var direction = robot.DirectionOfTreasure();
-            if (direction is object)
+            switch (_currentState)
             {
-                return direction.Value;
+                case State.FindingRightEdge:
+                    if (AtRightEdge(robot))
+                    {
+                        RecordLocationOfRightEdge();
+                        ChangeToHeadingDownThenLeft(numberToGoDown: 3);
+                        return MoveLeft();
+                    }
+                    else
+                    {
+                        return MoveRight();
+                    }
+
+                case State.HeadingRight:
+                    if (CanHeadRight())
+                    {
+                        return MoveRight();
+                    }
+                    else
+                    {
+                        ChangeToHeadingDownThenLeft(numberToGoDown: 2);
+                        return MoveDownIfPossible(robot);
+                    }
+
+                case State.HeadingDownThenLeft:
+                    if (ShouldContinueHeadingDown(robot))
+                    {
+                        return MoveDown();
+                    }
+                    else
+                    {
+                        ChangeToHeadingLeft();
+                        return MoveLeft();
+                    }
+
+                case State.HeadingLeft:
+                    if (CanHeadLeft())
+                    {
+                        return MoveLeft();
+                    }
+                    else
+                    {
+                        ChangeToHeadingDownThenRight(2);
+                        return MoveDownIfPossible(robot);
+                    }
+
+                case State.HeadingDownThenRight:
+                    if (ShouldContinueHeadingDown(robot))
+                    {
+                        return MoveDown();
+                    }
+                    else
+                    {
+                        ChangeToHeadingRight();
+                        return MoveRight();
+                    }
+
+                default:
+                    return null;
             }
-            else
-            {
-                switch (_currentState)
-                {
-                    case State.FindingRightEdge:
-                        if (AtRightEdge(robot))
-                        {
-                            RecordLocationOfRightEdge();
-                            ChangeToHeadingDownThenLeft(numberToGoDown: 3);
-                            return MoveLeft();
-                        }
-                        else
-                        {
-                            return MoveRight();
-                        }
-
-                    case State.HeadingRight:
-                        if (CanHeadRight())
-                        {
-                            return MoveRight();
-                        }
-                        else
-                        {
-                            ChangeToHeadingDownThenLeft(numberToGoDown: 2);
-                            return MoveDownIfPossible(robot);
-                        }
-
-                    case State.HeadingDownThenLeft:
-                        if (ShouldContinueHeadingDown(robot))
-                        {
-                            return MoveDown();
-                        }
-                        else
-                        {
-                            ChangeToHeadingLeft();
-                            return MoveLeft();
-                        }
-
-                    case State.HeadingLeft:
-                        if (CanHeadLeft())
-                        {
-                            return MoveLeft();
-                        }
-                        else
-                        {
-                            ChangeToHeadingDownThenRight(2);
-                            return MoveDownIfPossible(robot);
-                        }
-
-                    case State.HeadingDownThenRight:
-                        if (ShouldContinueHeadingDown(robot))
-                        {
-                            return MoveDown();
-                        }
-                        else
-                        {
-                            ChangeToHeadingRight();
-                            return MoveRight();
-                        }
-
-                    default:
-                        break;
-                }
-            }
-
-            return null;
         }
 
         private void ChangeToHeadingRight()

@@ -33,10 +33,14 @@ namespace Robots
         {
             if (world.CellContent(_robotLocation) == Content.Treasure) return true;
 
-            var newDirection = strategy.SuggestDirection(robot);
-            if (newDirection == null) return false;
+            var direction = robot.DirectionOfTreasure();
+            if (direction is null)
+            {
+                direction = strategy.SuggestDirection(robot);
+                if (direction == null) return false;
+            }
 
-            _robotLocation = robot.Move(newDirection.Value);
+            _robotLocation = robot.Move(direction.Value);
             _publishRobotHasMoved(_robotLocation);
 
             return FollowStrategy(world, robot, strategy);

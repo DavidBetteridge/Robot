@@ -6,12 +6,7 @@
 
         public Direction? SuggestDirection(Robot robot)
         {
-            var direction = robot.DirectionOfTreasure();
-            if (direction is object)
-            {
-                return direction.Value;
-            }
-            else if (!_leftWallFound && robot.Look(Direction.Left) == Content.Empty)
+            if (!_leftWallFound && robot.Look(Direction.Left) == Content.Empty)
             {
                 return Direction.Left;
             }
