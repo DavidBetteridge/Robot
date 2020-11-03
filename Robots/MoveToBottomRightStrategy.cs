@@ -2,172 +2,139 @@
 {
     internal class MoveToBottomRightStrategy : IStrategy
     {
-        private enum State
-        {
-            FindingRightEdge,
-            HeadingRight,
-            HeadingDownThenLeft,
-            HeadingDownThenRight,
-            HeadingLeft
-        }
-
-        private State _currentState = State.FindingRightEdge;
-
-        private int xOffset = 0;
-        private int yOffset = 0;
-        private int maxXOffset = int.MaxValue;
+        private IState _currentState = new FindingRightEdgeState();
+        private SharedState _sharedState = new SharedState();
 
         public Direction? SuggestDirection(Robot robot)
         {
-            return _currentState switch
-            {
-                State.FindingRightEdge => FromStateFindingRightEdge(robot),
-                State.HeadingRight => FromStateHeadingRight(robot),
-                State.HeadingDownThenLeft => FromStateHeadingDownTheLeft(robot),
-                State.HeadingLeft => FromStateHeadingLeft(robot),
-                State.HeadingDownThenRight => FromStateHeadingDownThenRight(robot),
-                _ => null,
-            };
+            var (SharedState, NewDirection, NextState) = _currentState.Next(_sharedState, robot);
+
+            _sharedState = SharedState;
+            _currentState = NextState;
+
+            return NewDirection;
+
         }
 
-        private Direction? FromStateHeadingDownThenRight(Robot robot)
+        class SharedState
         {
-            if (ShouldContinueHeadingDown(robot))
-            {
-                return MoveDown();
-            }
-            else
-            {
-                ChangeStateToHeadingRight();
-                return MoveRight();
-            }
+            public int DistanceFromLeftEdge { get; set; }
+            public int Width { get; set; }
         }
 
-        private Direction? FromStateHeadingLeft(Robot robot)
+        interface IState
         {
-            if (CanHeadLeft())
-            {
-                return MoveLeft();
-            }
-            else
-            {
-                ChangeStateToHeadingDownThenRight(2);
-                return MoveDownIfPossible(robot);
-            }
+            (SharedState SharedState, Direction? NewDirection, IState NextState) Next(SharedState state, Robot robot);
         }
 
-        private Direction? FromStateHeadingDownTheLeft(Robot robot)
+        class FindingRightEdgeState : IState
         {
-            if (ShouldContinueHeadingDown(robot))
+            public (SharedState, Direction?, IState) Next(SharedState state, Robot robot)
             {
-                return MoveDown();
+                if (AtRightEdge(robot))
+                {
+                    state.Width = state.DistanceFromLeftEdge - 1;
+                    var nextState = new HeadingDownThenTurnState(numberToGoDown: 3, Direction.Left);
+                    return (state, Direction.Left, nextState);
+                }
+                else
+                {
+                    state.DistanceFromLeftEdge++;
+                    return (state, Direction.Right, this);
+                }
             }
-            else
+
+            private static bool AtRightEdge(Robot robot)
             {
-                ChangeStateToHeadingLeft();
-                return MoveLeft();
+                return robot.Look(Direction.Right) == Content.Wall;
             }
         }
 
-        private Direction? FromStateHeadingRight(Robot robot)
+        class HeadingDownThenTurnState : IState
         {
-            if (CanHeadRight())
+            private int _numberToGoDown;
+            private readonly Direction _directionToTurn;
+
+            public HeadingDownThenTurnState(int numberToGoDown, Direction directionToTurn)
             {
-                return MoveRight();
+                _numberToGoDown = numberToGoDown;
+                _directionToTurn = directionToTurn;
             }
-            else
+
+            public (SharedState, Direction?, IState) Next(SharedState state, Robot robot)
             {
-                ChangeStateToHeadingDownThenLeft(numberToGoDown: 2);
-                return MoveDownIfPossible(robot);
+                if (ShouldContinueHeadingDown(robot))
+                {
+                    _numberToGoDown--;
+                    return (state, Direction.Down, this);
+                }
+                else
+                {
+                    if (_directionToTurn == Direction.Right)
+                    {
+                        state.DistanceFromLeftEdge++;
+                        var nextState = new HeadingRightState();
+                        return (state, Direction.Right, nextState);
+                    }
+                    else
+                    {
+                        state.DistanceFromLeftEdge--;
+                        var nextState = new HeadingLeftState();
+                        return (state, Direction.Left, nextState);
+                    }
+                }
             }
-        }
 
-        private Direction FromStateFindingRightEdge(Robot robot)
-        {
-            if (AtRightEdge(robot))
+            private bool ShouldContinueHeadingDown(Robot robot)
             {
-                RecordLocationOfRightEdge();
-                ChangeStateToHeadingDownThenLeft(numberToGoDown: 3);
-                return MoveLeft();
+                return _numberToGoDown > 0 && robot.Look(Direction.Down) == Content.Empty;
             }
-            else
+        }
+
+        class HeadingRightState : IState
+        {
+            public (SharedState, Direction?, IState) Next(SharedState state, Robot robot)
             {
-                return MoveRight();
+                var canHeadRight = state.DistanceFromLeftEdge < state.Width;
+                if (canHeadRight)
+                {
+                    state.DistanceFromLeftEdge++;
+                    return (state, Direction.Right, this);
+                }
+                else
+                {
+                    if (robot.Look(Direction.Down) != Content.Empty)
+                        return (state, null, null);
+                    else
+                    {
+                        var nextState = new HeadingDownThenTurnState(numberToGoDown: 2, Direction.Left);
+                        return (state, Direction.Down, nextState);
+                    }
+                }
             }
         }
 
-        private void ChangeStateToHeadingRight()
+        class HeadingLeftState : IState
         {
-            _currentState = State.HeadingRight;
-        }
-
-        private void ChangeStateToHeadingLeft()
-        {
-            _currentState = State.HeadingLeft;
-        }
-
-        private void RecordLocationOfRightEdge()
-        {
-            maxXOffset = xOffset - 1;
-        }
-
-        private void ChangeStateToHeadingDownThenLeft(int numberToGoDown)
-        {
-            yOffset = numberToGoDown;
-            _currentState = State.HeadingDownThenLeft;
-        }
-
-        private void ChangeStateToHeadingDownThenRight(int numberToGoDown)
-        {
-            yOffset = numberToGoDown;
-            _currentState = State.HeadingDownThenRight;
-        }
-
-
-        private bool CanHeadRight()
-        {
-            return xOffset < maxXOffset;
-        }
-
-        private bool CanHeadLeft()
-        {
-            return xOffset > 0;
-        }
-
-        private bool ShouldContinueHeadingDown(Robot robot)
-        {
-            return yOffset > 0 && robot.Look(Direction.Down) == Content.Empty;
-        }
-
-        private static bool AtRightEdge(Robot robot)
-        {
-            return robot.Look(Direction.Right) == Content.Wall;
-        }
-
-        private static Direction? MoveDownIfPossible(Robot robot)
-        {
-            if (robot.Look(Direction.Down) != Content.Empty)
-                return null;
-            else
-                return Direction.Down;
-        }
-
-        private Direction MoveRight()
-        {
-            xOffset++;
-            return Direction.Right;
-        }
-
-        private Direction MoveLeft()
-        {
-            xOffset--;
-            return Direction.Left;
-        }
-
-        private Direction MoveDown()
-        {
-            yOffset--;
-            return Direction.Down;
+            public (SharedState, Direction?, IState) Next(SharedState state, Robot robot)
+            {
+                var canHeadLeft = state.DistanceFromLeftEdge > 1;
+                if (canHeadLeft)
+                {
+                    state.DistanceFromLeftEdge--;
+                    return (state, Direction.Left, this);
+                }
+                else
+                {
+                    if (robot.Look(Direction.Down) != Content.Empty)
+                        return (state, null, null);
+                    else
+                    {
+                        var nextState = new HeadingDownThenTurnState(numberToGoDown: 2, Direction.Right);
+                        return (state, Direction.Down, nextState);
+                    }
+                }
+            }
         }
     }
 }

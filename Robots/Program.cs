@@ -16,7 +16,6 @@ namespace Robots
             var solver = new Solver(width, height, treasureLocation, robotLocation, display.RobotMoved);
 
             display.DisplayWorldAndRobot(width, height, treasureLocation, robotLocation);
-            Console.ReadKey(true);
             solver.Solve();
         }
     }
