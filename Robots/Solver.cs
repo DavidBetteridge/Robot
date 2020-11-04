@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Robots
 {
@@ -26,37 +27,39 @@ namespace Robots
                    new WalkRight(1),
                    new FindTopWall(),
                    new WalkDown(1),
-                   new FindRightWall(),
-                   new WalkLeft(1)
+                   new FindRightWall()
             );
 
             Repeat(sharedState,
+                   () => new WalkDown(DistanceToDescend()),
+                   () => new WalkLeft(sharedState.Width - 1),
                    () => new WalkDown(3),
-                   () => new WalkLeft(sharedState.Width - 3),
-                   () => new WalkDown(3),
-                   () => new WalkRight(sharedState.Width - 3)
+                   () => new WalkRight(sharedState.Width - 1)
                 );
+
+            int DistanceToDescend()
+            {
+                if (sharedState.FirstSweep)
+                {
+                    sharedState.FirstSweep = false;
+                    return 1;
+                }
+                else
+                    return 3;
+            }
         }
 
         private void Do(SharedState sharedState, params IStrategy[] strategies)
         {
-            foreach (var strategy in strategies)
-            {
-                if (FollowStrategy(sharedState, strategy))
-                    return;
-            }
+            strategies.Any(strategy => FollowStrategy(sharedState, strategy));
         }
 
         private void Repeat(SharedState sharedState, params Func<IStrategy>[] strategyCreators)
         {
-            while (true)
-            {
-                foreach (var creator in strategyCreators)
-                {
-                    if (FollowStrategy(sharedState, creator()))
-                        return;
-                }
-            }
+            if (strategyCreators.Any(creator => FollowStrategy(sharedState, creator())))
+                return;
+
+            Repeat(sharedState, strategyCreators);
         }
 
         private bool FollowStrategy(SharedState sharedState, IStrategy strategy)

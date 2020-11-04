@@ -6,6 +6,7 @@
         {
             if (robot.Look(Direction.Up) == Content.Empty)
             {
+                sharedState.VerticalDistanceFromStart++;
                 return Direction.Up;
             }
             else

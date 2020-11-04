@@ -42,7 +42,7 @@ namespace Robots
 
             _currentLocation = newLocation;
 
-            Thread.Sleep(TimeSpan.FromSeconds(.25));
+            Thread.Sleep(TimeSpan.FromSeconds(.10));
         }
     }
 }

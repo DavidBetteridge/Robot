@@ -53,5 +53,40 @@ namespace Robot.Tests
             Assert.Equal(treasureLocation.X, previousLocation.X);
             Assert.Equal(treasureLocation.Y, previousLocation.Y);
         }
+
+
+        [Theory(DisplayName = "All locations")]
+        [InlineData(10,10)]
+        [InlineData(10,11)]
+        [InlineData(10,12)]
+        [InlineData(10,13)]
+        public void AllLocations(int width, int height)
+        {
+            for (int treasureX = 0; treasureX < width; treasureX++)
+            {
+                for (int treasureY = 0; treasureY < height; treasureY++)
+                {
+                    for (int robotX = 0; robotX < width; robotX++)
+                    {
+                        for (int robotY = 0; robotY < height; robotY++)
+                        {
+                            var treasureLocation = new Location(treasureX, treasureY);
+                            var robotLocation = new Location(robotX, robotY);
+
+                            var previousLocation = robotLocation;
+                            var solver = new Solver(width, height, treasureLocation, robotLocation, newLocation =>
+                            {
+                                previousLocation = newLocation;
+                            });
+                            solver.Solve();
+
+                            Assert.Equal(treasureLocation.X, previousLocation.X);
+                            Assert.Equal(treasureLocation.Y, previousLocation.Y);
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }
